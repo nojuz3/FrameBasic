@@ -14,7 +14,9 @@ export default function Create() {
 
   const date = new Date();
   // y + m + d + "T" + H : M
-  const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T${date.getHours()}:${date.getMinutes()}`;
+  const formattedDate = `${date.getFullYear()}-${
+    date.getMonth() + 1
+  }-${date.getDate()}T${date.getHours()}:${date.getMinutes()}`;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,11 +25,36 @@ export default function Create() {
       [name]: value,
     });
   };
-  console.log(formData)
-  
-  const handleSubmit = (e) => {
+  console.log(formData);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/placeholder",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        alert("created successfully!");
+        setFormData({
+          title: "",
+          description: "",
+          date: "",
+          location: "",
+          ticketPrice: "",
+          capacity: "",
+          category: "music",
+          image: "",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

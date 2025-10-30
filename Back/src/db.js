@@ -14,6 +14,23 @@ db.prepare(
   )
 `
 ).run();
+
+db.prepare(
+  `CREATE TABLE IF NOT EXISTS festivals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    description TEXT,
+    date TEXT,
+    location TEXT,
+    ticketPrice REAL,
+    capacity INTEGER,
+    category TEXT,
+    image TEXT,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+  )
+`
+).run();
 (async () => {
   const userExists = db
     .prepare("SELECT * FROM users WHERE username = ?")
