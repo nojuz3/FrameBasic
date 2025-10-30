@@ -1,0 +1,17 @@
+.nav{
+    box-sizing: border-box;
+    display: flex;
+    background-color: rgb(83, 83, 83);
+    width: 100vw;
+    border: 1px solid black;
+    justify-content: space-between;
+    height: 4vh;
+    align-items: center;
+}
+.nav-button{
+    margin-right: 10px;
+    cursor: pointer;
+}
+.nav-title{
+    margin-left: 10px;
+}
