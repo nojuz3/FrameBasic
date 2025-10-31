@@ -44,4 +44,8 @@ db.prepare(
   }
 })();
 
+// db.prepare("INSERT INTO pages (title, slug) VALUES(?,?)").run("test","test")
+// db.prepare(`DROP TABLE IF EXISTS changes`).run();
+// db.prepare("DELETE FROM pages WHERE id = 2").run()
+
 module.exports = db;
