@@ -11,7 +11,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-
 // LOGIN REGISTER
 app.post(`/register`, async (req, res) => {
   const { username, email, password } = req.body;
@@ -67,9 +66,13 @@ app.post(`/login`, async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
     //
-    const token = jwt.sign({ id: userExist.id, role: userExist.role }, JWT_SECRET, {
-      expiresIn: "2h",
-    });
+    const token = jwt.sign(
+      { id: userExist.id, role: userExist.role },
+      JWT_SECRET,
+      {
+        expiresIn: "2h",
+      }
+    );
     //
     res.json({ success: true, token });
   } catch (error) {
@@ -77,7 +80,6 @@ app.post(`/login`, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-// END LOGIN REGISTER
 
 // AUTH MIDDLEWARE
 const authenticateToken = (req, res, next) => {
@@ -96,7 +98,7 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-app.get(`/me` , authenticateToken, async (req, res) => {
+app.get(`/me`, authenticateToken, async (req, res) => {
   try {
     const user = db
       .prepare("SELECT id, username, role FROM users WHERE id = ?")
@@ -112,18 +114,125 @@ app.get(`/me` , authenticateToken, async (req, res) => {
   }
 });
 
+app.post("/placeholder", authenticateToken, (req, res) => {
+  const {
+    title,
+    description,
+    date,
+    location,
+    ticketPrice,
+    capacity,
+    category,
+    image,
+  } = req.body;
 
+  if (
+    !title ||
+    !description ||
+    !date ||
+    !location ||
+    !ticketPrice ||
+    !capacity ||
+    !category ||
+    !image
+  ) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+  try {
+    db.prepare(
+      "INSERT INTO pending (title, description, date, location, ticketPrice, capacity, category, image, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    ).run(
+      title,
+      description,
+      date,
+      location,
+      ticketPrice,
+      capacity,
+      category,
+      image,
+      req.user.id
+    );
 
+    res.json({ success: true, message: "Placeholder created!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+app.get("/placeholder/all", authenticateToken, (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied." });
+  }
+  try {
+    const placeholders = db.prepare("SELECT * FROM pending").all();
+    res.json({ success: true, placeholders });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+app.post("/placeholder/confirm", authenticateToken, (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied." });
+  }
+  const {
+    id,
+    title,
+    description,
+    date,
+    location,
+    ticketPrice,
+    capacity,
+    category,
+    image,
+  } = req.body;
+  try {
+    db.prepare(
+      "INSERT INTO festivals (title, description, date, location, ticketPrice, capacity, category, image, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    ).run(
+      title,
+      description,
+      date,
+      location,
+      ticketPrice,
+      capacity,
+      category,
+      image,
+      req.user.id
+    );
+    db.prepare("DELETE FROM pending WHERE id = ?").run(id);
+    res.json({ success: true, message: "Placeholder confirmed!" });
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.post("/placeholder/delete", authenticateToken, (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied." });
+  }
 
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: "ID is required." });
+  }
 
-
-
-
-
-
-
-
-
+  try {
+    db.prepare("DELETE FROM pending WHERE id = ?").run(id);
+    res.json({ success: true, message: "Placeholder deleted!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+app.get("/data",authenticateToken, (req, res) => {
+  try {
+    const festivals = db.prepare("SELECT * FROM festivals").all();
+    res.json({ success: true, festivals });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 app.listen(8080, () => {
   console.log("Server started on port 8080");
 });
