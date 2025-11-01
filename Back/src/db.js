@@ -67,4 +67,6 @@ db.prepare(
 // db.prepare(`DROP TABLE IF EXISTS festivals`).run();
 // db.prepare("DELETE FROM pages WHERE id = 2").run()
 
+
 module.exports = db;
+
