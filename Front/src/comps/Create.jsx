@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import axios from "axios";
 export default function Create() {
   const [formData, setFormData] = useState({
     title: "",
@@ -13,10 +13,6 @@ export default function Create() {
   });
 
   const date = new Date();
-  // y + m + d + "T" + H : M
-  const formattedDate = `${date.getFullYear()}-${
-    date.getMonth() + 1
-  }-${date.getDate()}T${date.getHours()}:${date.getMinutes()}`;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,7 +84,7 @@ export default function Create() {
             name="date"
             value={formData.date}
             onChange={handleChange}
-            min={formattedDate}
+            min={date.toISOString().slice(0,16)}
             required
           />
         </div>

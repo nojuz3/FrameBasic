@@ -31,6 +31,25 @@ db.prepare(
   )
 `
 ).run();
+
+db.prepare(
+  `CREATE TABLE IF NOT EXISTS pending (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    date TEXT NOT NULL,
+    location TEXT NOT NULL,
+    ticketPrice INTEGER NOT NULL,
+    capacity INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    image TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id)
+  )
+`
+).run();
+
+
 (async () => {
   const userExists = db
     .prepare("SELECT * FROM users WHERE username = ?")
@@ -45,7 +64,9 @@ db.prepare(
 })();
 
 // db.prepare("INSERT INTO pages (title, slug) VALUES(?,?)").run("test","test")
-// db.prepare(`DROP TABLE IF EXISTS changes`).run();
+// db.prepare(`DROP TABLE IF EXISTS festivals`).run();
 // db.prepare("DELETE FROM pages WHERE id = 2").run()
 
+
 module.exports = db;
+
